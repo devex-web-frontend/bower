@@ -479,6 +479,59 @@ describe('resolverFactory', function () {
         .done();
     });
 
+	it('should recognize SVN endpoints correctly', function (next) {
+		var promise = Q.resolve();
+		var endpoints = {
+			// svn+http
+			'svn+http://svn.hostname.com/project': 'http://svn.hostname.com/project',
+			'svn+http://svn.hostname.com/project/': 'http://svn.hostname.com/project',
+			'svn+http://svn.hostname.com/project/module': 'http://svn.hostname.com/project/module',
+			'svn+http://svn.hostname.com/project/module/': 'http://svn.hostname.com/project/module',
+			'svn+http://user@svn.hostname.com/project': 'http://user@svn.hostname.com/project',
+			'svn+http://user@svn.hostname.com/project/': 'http://user@svn.hostname.com/project',
+			'svn+http://user@svn.hostname.com/project/module': 'http://user@svn.hostname.com/project/module',
+			'svn+http://user@svn.hostname.com/project/module/': 'http://user@svn.hostname.com/project/module',
+			'svn+http://user:password@svn.hostname.com/project': 'http://user:password@svn.hostname.com/project',
+			'svn+http://user:password@svn.hostname.com/project/': 'http://user:password@svn.hostname.com/project',
+			'svn+http://user:password@svn.hostname.com/project/module': 'http://user:password@svn.hostname.com/project/module',
+			'svn+http://user:password@svn.hostname.com/project/module/': 'http://user:password@svn.hostname.com/project/module',
+
+			// svn+https
+			'svn+https://svn.hostname.com/project': 'https://svn.hostname.com/project',
+			'svn+https://svn.hostname.com/project/': 'https://svn.hostname.com/project',
+			'svn+https://svn.hostname.com/project/module': 'https://svn.hostname.com/project/module',
+			'svn+https://svn.hostname.com/project/module/': 'https://svn.hostname.com/project/module',
+			'svn+https://user@svn.hostname.com/project': 'https://user@svn.hostname.com/project',
+			'svn+https://user@svn.hostname.com/project/': 'https://user@svn.hostname.com/project',
+			'svn+https://user@svn.hostname.com/project/module': 'https://user@svn.hostname.com/project/module',
+			'svn+https://user@svn.hostname.com/project/module/': 'https://user@svn.hostname.com/project/module',
+			'svn+https://user:password@svn.hostname.com/project': 'https://user:password@svn.hostname.com/project',
+			'svn+https://user:password@svn.hostname.com/project/': 'https://user:password@svn.hostname.com/project',
+			'svn+https://user:password@svn.hostname.com/project/module': 'https://user:password@svn.hostname.com/project/module',
+			'svn+https://user:password@svn.hostname.com/project/module/': 'https://user:password@svn.hostname.com/project/module',
+
+			// svn+ssh
+			'svn+ssh://user@svn.hostname.com/project': 'ssh://user@svn.hostname.com/project',
+			'svn+ssh://user@svn.hostname.com/project/': 'ssh://user@svn.hostname.com/project',
+			'svn+ssh://user@svn.hostname.com/project/module': 'ssh://user@svn.hostname.com/project/module',
+			'svn+ssh://user@svn.hostname.com/project/module/': 'ssh://user@svn.hostname.com/project/module'
+		};
+
+		mout.object.forOwn(endpoints, function (value, key) {
+			promise = promise.then(function () {
+				return callFactory({ source: key });
+			})
+			.then(function (resolver) {
+				expect(resolver).to.be.a(resolvers.Svn);
+				expect(resolver.getSource()).to.equal(value);
+			});
+		});
+
+		promise
+		.then(next.bind(next, null))
+		.done();
+	});
+
     it('should error out if the package was not found in the registry', function (next) {
         callFactory({ source: 'some-package-that-will-never-exist' })
         .then(function () {
